@@ -10,11 +10,25 @@ import * as bcrypt from 'bcrypt';
 //   password: string;
 // }
 
+export enum UserType {
+  ADMIN = 'ADMIN',
+  CUSTOMER = 'CUSTOMER',
+  TECHNICIAN = 'TECHNICIAN',
+  MOBILE_TEAM = 'MOBILE_UNIT',
+  PARTNER = 'PARTNER',
+  GARAGE = 'GARAGE',
+  VENDOR = 'VENDOR',
+}
+export const USER_TYPE = {
+  ADMIN: UserType.ADMIN,
+  CUSTOMER: UserType.CUSTOMER,
+};
 export interface IUser extends Document {
   toObject(): unknown;
   name: string;
   email: string;
   password: string;
+  role: UserType.ADMIN;
   //isAdmin: boolean;
 }
 

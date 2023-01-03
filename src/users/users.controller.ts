@@ -9,23 +9,29 @@ import {
   Res,
 } from '@nestjs/common';
 import { UserService } from './users.service';
+import { ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
 import { CreateUsersDto, UpdateUserDto } from 'src/dtos/users.dto';
 
 @Controller('users')
+@ApiTags('User')
 export class UsersController {
   constructor(private readonly usersService: UserService) {}
 
+  @ApiResponse({
+    status: 200,
+    description: 'A user has been succesfully created',
+  })
   @Post('/create-user')
   async createStudent(
     @Res() response,
     @Body()
-    createStudent: CreateUsersDto,
+    body: CreateUsersDto,
   ) {
     try {
-      const newUser = await this.usersService.createUser(createStudent);
+      const newUser = await this.usersService.createUser(body);
 
       return response.status(HttpStatus.CREATED).json({
-        message: 'Student has been created successfully',
+        message: 'User has been created successfully',
         newUser,
       });
     } catch (err) {
@@ -37,6 +43,16 @@ export class UsersController {
     }
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'User updated  successfully',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Should be an id of a User in the database',
+    type: String,
+  })
   @Patch('update/:id')
   async updateStudent(
     @Res() response,
@@ -55,6 +71,16 @@ export class UsersController {
     }
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'User gotten  successfully',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'Should be an id of a User in the database',
+    type: String,
+  })
   @Get('/:id')
   // eslint-disable-next-line prettier/prettier
   async getUserById(
@@ -72,7 +98,11 @@ export class UsersController {
     }
   }
 
-  @Get('')
+  @ApiResponse({
+    status: 200,
+    description: 'Users gotten successfully',
+  })
+  @Get('/')
   async getUsers(@Res() response) {
     try {
       const userData = await this.usersService.getAllUsers();

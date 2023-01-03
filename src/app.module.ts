@@ -4,8 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from '@hapi/joi';
-// import { SurveysController } from './surveys/surveys.controller';
-// import { SurveyService } from './surveys/surveys.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 
@@ -21,12 +19,6 @@ import { AuthModule } from './auth/auth.module';
         MONGO_HOST: Joi.string().required(),
       }),
     }),
-    // MongooseModule.forRoot(process.env.MONGODB_URI,{
-    //   useNewUrlParser: true,
-    //   useUnifiedTopology: true,
-    //   useCreateIndex: true,
-    // }),
-  // MongooseModule.forRoot('mongodb+srv://Sparkles:c0dDJcNjTzZQp60f@cluster0.tull0j4.mongodb.net/surveyApp'),
    MongooseModule.forRootAsync({
      imports: [ConfigModule],
      inject:[ConfigService],
@@ -37,7 +29,6 @@ import { AuthModule } from './auth/auth.module';
       const host = configService.get('MONGO_HOST');
 
    const  uri= `mongodb+srv://${username}:${password}@${host}`;
-console.log('uri', uri)
       return {
         uri,
        dbName: database,

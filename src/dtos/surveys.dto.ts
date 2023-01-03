@@ -1,5 +1,9 @@
 import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
+export interface GenericMatch {
+  [key: string]: string | number | Date | any;
+}
+
 export class CreateSurveyDTO {
   @IsString()
   @IsNotEmpty()

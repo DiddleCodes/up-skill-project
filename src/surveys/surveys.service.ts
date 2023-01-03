@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateSurveyDTO, UpdateSurveyDTO } from 'src/dtos/surveys.dto';
+import { CreateSurveyDTO, GenericMatch } from 'src/dtos/surveys.dto';
 import { ISurvey } from 'src/schemas/surveys.schemas';
 
 @Injectable()
@@ -11,21 +11,33 @@ export class SurveyService {
     private surveyModel: Model<ISurvey>,
   ) {}
 
-  async createSurvey(createSurvey: CreateSurveyDTO): Promise<ISurvey> {
-    return (await this.surveyModel.create(createSurvey)).save();
+  async createSurvey(body: CreateSurveyDTO): Promise<ISurvey> {
+    return (await this.surveyModel.create(body)).save();
   }
 
-  async updateSurvey(
-    _id: string,
-    updateDetails: UpdateSurveyDTO,
-  ): Promise<ISurvey> {
-    const updateSurvey = await this.surveyModel.findByIdAndUpdate(
-      _id,
-      updateDetails,
-    );
+  async updateSurvey(_id, update: GenericMatch): Promise<ISurvey> {
+    const updateSurvey = await this.surveyModel.findByIdAndUpdate(_id, update, {
+      new: true,
+    });
     if (!updateSurvey) {
       throw new HttpException(' Survey does not exist', HttpStatus.NOT_FOUND);
     }
     return updateSurvey;
+  }
+
+  async getSurveyById(id: string): Promise<ISurvey> {
+    const survey = await this.surveyModel.findById(id);
+    if (!survey) {
+      throw new HttpException(' Survey does not exist', HttpStatus.NOT_FOUND);
+    }
+    return survey;
+  }
+
+  async getAllSurveys(): Promise<ISurvey[]> {
+    const surveys = await this.surveyModel.find();
+    if (!surveys || surveys.length == 0) {
+      throw new HttpException(' No Survey found', HttpStatus.BAD_REQUEST);
+    }
+    return surveys;
   }
 }
