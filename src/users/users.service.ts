@@ -1,15 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { LoginDTO } from 'src/auth/auth-login.dto';
 
-import { IUser } from 'src/schemas/users.schema';
+import { IUser } from 'src/users/users.schema';
 import * as bcrypt from 'bcrypt';
-import {
-  CreateUsersDto,
-  UpdateUserDto,
-  UserRegisterDTO,
-} from 'src/dtos/users.dto';
+import { LoginDto, RegistrationDTO, UpdateUserDto } from 'src/users/users.dto';
 
 @Injectable()
 export class UserService {
@@ -18,7 +13,7 @@ export class UserService {
     private userModel: Model<IUser>,
   ) {}
 
-  async createUser(createUsers: CreateUsersDto): Promise<IUser> {
+  async createNewUser(createUsers: RegistrationDTO): Promise<IUser> {
     const newUser = (await this.userModel.create(createUsers)).save();
     return newUser;
   }
@@ -50,20 +45,18 @@ export class UserService {
     return user;
   }
 
-  async create(RegisterDTO: UserRegisterDTO) {
+  async createUser(RegisterDTO: RegistrationDTO) {
     const { email } = RegisterDTO;
     const user = await this.userModel.findOne({ email });
     if (user) {
       throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
 
-    const createdUser = new this.userModel(RegisterDTO);
-
-    await createdUser.save();
+    const createdUser = await new this.userModel(RegisterDTO).save();
     return this.sanitizeUser(createdUser);
   }
 
-  async findByLogin(UserDTO: LoginDTO) {
+  async findByLogin(UserDTO: LoginDto) {
     const { email, password } = UserDTO;
     const user = await this.userModel.findOne({ email });
     if (!user) {

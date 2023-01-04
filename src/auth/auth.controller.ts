@@ -3,10 +3,7 @@ import { AuthService } from './auth.service';
 
 import { UserService } from 'src/users/users.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-
-import { LoginDTO } from './auth-login.dto';
-import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
-import { UserRegisterDTO } from 'src/dtos/users.dto';
+import { LoginDto, RegistrationDTO } from 'src/users/users.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -22,11 +19,11 @@ export class AuthController {
   })
   @UseGuards()
   @Post('/register')
-  async register(@Body() registerDTO: UserRegisterDTO) {
-    const user: any = await this.userService.create(registerDTO);
-    const payload = user.email;
+  async register(@Body() body: RegistrationDTO) {
+    const token = await this.authService.signPayload({ email: body.email });
 
-    const token = await this.authService.signPayload(payload);
+    const user: any = await this.userService.createUser(body);
+
     return { user, token };
   }
 
@@ -34,11 +31,10 @@ export class AuthController {
     status: 200,
     description: 'User Logged in successfully',
   })
-  @UseGuards()
   @Post('/login')
-  @UseGuards(AuthGuard('jwt'))
-  async login(@Body() loginDTO: LoginDTO) {
-    const user: any = await this.userService.findByLogin(loginDTO);
+  //@UseGuards(AuthGuard('jwt'))
+  async login(@Body() body: LoginDto) {
+    const user: any = await this.userService.findByLogin(body);
 
     const payload = {
       email: user.email,

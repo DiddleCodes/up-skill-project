@@ -7,11 +7,7 @@ export interface GenericMatch {
 export class CreateSurveyDTO {
   @IsString()
   @IsNotEmpty()
-  firstName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  lastName: string;
+  fullName: string;
 
   @IsString()
   @IsNotEmpty()

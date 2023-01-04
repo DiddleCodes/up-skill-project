@@ -11,20 +11,20 @@ import {
 } from '@nestjs/common';
 import { SurveyService } from './surveys.service';
 import { ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
-import { CreateSurveyDTO, UpdateSurveyDTO } from 'src/dtos/surveys.dto';
+import { CreateSurveyDTO, UpdateSurveyDTO } from 'src/surveys/surveys.dto';
 import { AdminRolesGuard } from 'src/auth/authGuard';
 
-@Controller('surveys')
+@Controller('survey')
 @ApiTags('Survey')
 export class SurveysController {
-  constructor(private readonly surveyService: SurveyService) {}
+  constructor(private surveyService: SurveyService) {}
 
   @ApiResponse({
     status: 200,
     description: 'Survey has been succesfully created',
   })
   // @UseGuards()
-  @Post('/create-survey')
+  @Post('/create')
   async createSurvey(
     @Res() response,
     @Body()

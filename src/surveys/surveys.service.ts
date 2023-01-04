@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateSurveyDTO, GenericMatch } from 'src/dtos/surveys.dto';
-import { ISurvey } from 'src/schemas/surveys.schemas';
+import { CreateSurveyDTO, GenericMatch } from 'src/surveys/surveys.dto';
+import { ISurvey } from 'src/surveys/surveys.schemas';
 
 @Injectable()
 export class SurveyService {

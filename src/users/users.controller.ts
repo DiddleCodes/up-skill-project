@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
-import { CreateUsersDto, UpdateUserDto } from 'src/dtos/users.dto';
+import { RegistrationDTO, UpdateUserDto } from 'src/users/users.dto';
 
 @Controller('users')
 @ApiTags('User')
@@ -25,7 +25,7 @@ export class UsersController {
   async createStudent(
     @Res() response,
     @Body()
-    body: CreateUsersDto,
+    body: RegistrationDTO,
   ) {
     try {
       const newUser = await this.usersService.createUser(body);
