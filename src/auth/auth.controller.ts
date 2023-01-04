@@ -20,7 +20,7 @@ export class AuthController {
   @UseGuards()
   @Post('/register')
   async register(@Body() body: RegistrationDTO) {
-    const token = await this.authService.signPayload({ email: body.email });
+    const token = await this.authService.signPayload(body);
 
     const user: any = await this.userService.createUser(body);
 
@@ -38,6 +38,7 @@ export class AuthController {
 
     const payload = {
       email: user.email,
+      password: user.password,
     };
     const token = await this.authService.signPayload(payload);
     return { user, token };

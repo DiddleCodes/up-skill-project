@@ -8,7 +8,6 @@ import { MongooseModule } from '@nestjs/mongoose';
   exports: [SurveyService],
   imports: [
     MongooseModule.forFeature([{ name: 'Survey', schema: SurveySchema }]),
-    //AuthModule
   ],
   controllers: [SurveysController],
   providers: [SurveyService],

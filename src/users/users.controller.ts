@@ -22,7 +22,7 @@ export class UsersController {
     description: 'A user has been succesfully created',
   })
   @Post('/create-user')
-  async createStudent(
+  async createUser(
     @Res() response,
     @Body()
     body: RegistrationDTO,
@@ -54,7 +54,7 @@ export class UsersController {
     type: String,
   })
   @Patch('update/:id')
-  async updateStudent(
+  async updateUser(
     @Res() response,
     @Param('id') _id: string,
     @Body() updateUser: UpdateUserDto,
