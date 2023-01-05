@@ -20,7 +20,7 @@ export interface ISurvey extends Document {
   howDidYouHearAboutUs: string;
 }
 
-export const SurveyReportSchema = new Schema(
+export const SurveySchema = new Schema(
   {
     _id: {
       type: Types.ObjectId,
