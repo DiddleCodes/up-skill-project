@@ -43,7 +43,7 @@ export class SurveysController {
       return response.status(HttpStatus.BAD_REQUEST).json({
         statusCode: 400,
         message: 'Error encountered creating Survey',
-        error: 'false',
+        error: false,
       });
     }
   }
@@ -78,7 +78,7 @@ export class SurveysController {
       return response.status(HttpStatus.BAD_REQUEST).json({
         statusCode: 400,
         message: 'Error encountered updating Survey',
-        error: 'false',
+        error: false,
       });
     }
   }
@@ -110,7 +110,7 @@ export class SurveysController {
       return response.status(HttpStatus.BAD_REQUEST).json({
         statusCode: 400,
         message: 'Error encountered fetching Survey',
-        error: 'false',
+        error: false,
       });
     }
   }
@@ -132,7 +132,7 @@ export class SurveysController {
       return response.status(HttpStatus.BAD_REQUEST).json({
         statusCode: 400,
         message: 'Error encountered fetching Surveys',
-        error: 'false',
+        error: false,
       });
     }
   }
