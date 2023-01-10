@@ -7,40 +7,46 @@ import {
   Patch,
   Post,
   Res,
+  UseGuards,
 } from '@nestjs/common';
-import { UserService } from './users.service';
-import { ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
-import { RegistrationDTO, UpdateUserDto } from 'src/users/users.dto';
 
-@Controller('users')
-@ApiTags('User')
-export class UsersController {
-  constructor(private readonly usersService: UserService) {}
+import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoginDto, RegistrationDTO, UpdateUserDto } from 'src/user/users.dto';
+import { UserService } from './user.service';
+
+@Controller('auth')
+@ApiTags('Auth')
+export class AuthController {
+  constructor(private userService: UserService) {}
 
   @ApiResponse({
     status: 200,
-    description: 'A user has been succesfully created',
+    description: 'A user has been succesfully registered',
   })
-  @Post('/create-user')
-  async createUser(
-    @Res() response,
-    @Body()
-    body: RegistrationDTO,
-  ) {
-    try {
-      const newUser = await this.usersService.createUser(body);
+  @UseGuards()
+  @Post('/register')
+  async register(@Body() body: RegistrationDTO) {
+    const token = await this.userService.signPayload(body);
 
-      return response.status(HttpStatus.CREATED).json({
-        message: 'User has been created successfully',
-        newUser,
-      });
-    } catch (err) {
-      return response.status(HttpStatus.BAD_REQUEST).json({
-        statusCode: 400,
-        message: 'Error encountered creating User',
-        error: 'Bad Request',
-      });
-    }
+    const user: any = await this.userService.createUser(body);
+    return { user, token };
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'User Logged in successfully',
+  })
+  @Post('/login')
+  //@UseGuards(AuthGuard('jwt'))
+  async login(@Body() body: LoginDto) {
+    const user: any = await this.userService.findByLogin(body);
+
+    const payload = {
+      email: user.email,
+      password: user.password,
+    };
+    const token = await this.userService.signPayload(payload);
+    return { user, token };
   }
 
   @ApiResponse({
@@ -60,7 +66,7 @@ export class UsersController {
     @Body() updateUser: UpdateUserDto,
   ) {
     try {
-      const userUpdate = await this.usersService.updateUser(_id, updateUser);
+      const userUpdate = await this.userService.updateUser(_id, updateUser);
 
       return response.status(HttpStatus.ACCEPTED).json({
         message: 'User updated  successfully ',
@@ -87,7 +93,7 @@ export class UsersController {
       @Res() response, 
       @Param('id') _id: string) {
     try {
-      const getUser = await this.usersService.getUserById(_id);
+      const getUser = await this.userService.getUserById(_id);
 
       return response.status(HttpStatus.FOUND).json({
         message: 'User gotten  successfully ',
@@ -105,7 +111,7 @@ export class UsersController {
   @Get('/')
   async getUsers(@Res() response) {
     try {
-      const userData = await this.usersService.getAllUsers();
+      const userData = await this.userService.getAllUsers();
       return response.status(HttpStatus.FOUND).json({
         message: 'All User data gotten successfully',
         userData,

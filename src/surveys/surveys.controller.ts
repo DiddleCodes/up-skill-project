@@ -12,7 +12,7 @@ import {
 import { SurveyService } from './surveys.service';
 import { ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
 import { CreateSurveyDTO, UpdateSurveyDTO } from 'src/surveys/surveys.dto';
-import { AdminRolesGuard } from 'src/auth/authGuard';
+import { AdminRolesGuard } from 'src/user/authGuard';
 
 @Controller('survey')
 @ApiTags('Survey')

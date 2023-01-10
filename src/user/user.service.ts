@@ -1,17 +1,27 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { sign } from 'jsonwebtoken';
+import { IUser, Payload } from './users.schema';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-
-import { IUser } from 'src/users/users.schema';
 import * as bcrypt from 'bcrypt';
-import { LoginDto, RegistrationDTO, UpdateUserDto } from 'src/users/users.dto';
+import { Model } from 'mongoose';
+import { RegistrationDTO, UpdateUserDto, LoginDto } from './users.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User')
     private userModel: Model<IUser>,
+    private configService: ConfigService,
   ) {}
+
+  async signPayload(payload: Payload) {
+    const JWT_SECRET_KEY = await this.configService.get('JWT_SECRET_KEY');
+    return sign(payload, JWT_SECRET_KEY, { expiresIn: '2d' });
+  }
+  async validateUser(payload: Payload) {
+    return await this.findByPayload(payload);
+  }
 
   async createNewUser(createUsers: RegistrationDTO): Promise<IUser> {
     const newUser = (await this.userModel.create(createUsers)).save();
