@@ -9,6 +9,9 @@ export abstract class MockModel<T> {
   }
   constructorSpy(_createEntityData: T): void {}
 
+  async create(): Promise<T> {                // mocking the save() method
+    return this.entityStub;
+  }
   async save(): Promise<T> {                // mocking the save() method
     return this.entityStub;
   }
@@ -19,5 +22,8 @@ export abstract class MockModel<T> {
 
   async findOne(): Promise<T> {             //mocking the mongoose method (save, findOne, FindOne and Delete e.t.c)
     return this.entityStub;
+  }
+  async find(): Promise<[T]> {             //mocking the mongoose method (save, findOne, FindOne and Delete e.t.c)
+    return [this.entityStub];
   }
 }
