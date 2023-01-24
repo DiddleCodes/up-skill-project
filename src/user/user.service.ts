@@ -83,7 +83,7 @@ export class UserService {
 
   async findByLogin(UserDTO: LoginDto) {
     const { email, password } = UserDTO;
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
       throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
     }
