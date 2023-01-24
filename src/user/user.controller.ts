@@ -109,7 +109,7 @@ export class AuthController {
     description: 'Users gotten successfully',
   })
   @Get('/')
-  async getUsers(@Res() response) {
+  async getAllUsers(@Res() response) {
     try {
       const userData = await this.userService.getAllUsers();
       return response.status(HttpStatus.FOUND).json({

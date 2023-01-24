@@ -15,7 +15,7 @@ export const USER_TYPE = {
   CUSTOMER: UserType.CUSTOMER,
 };
 export interface IUser extends Document {
-  toObject(): unknown;
+  //toObject(): unknown;
   name: string;
   email: string;
   password: string;

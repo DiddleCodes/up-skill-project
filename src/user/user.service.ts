@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { sign } from 'jsonwebtoken';
 import { IUser, Payload } from './users.schema';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { RegistrationDTO, UpdateUserDto, LoginDto } from './users.dto';
+import { GenericMatch } from 'src/surveys/surveys.dto';
 
 @Injectable()
 export class UserService {
@@ -23,9 +29,9 @@ export class UserService {
     return await this.findByPayload(payload);
   }
 
-  async createNewUser(createUsers: RegistrationDTO): Promise<IUser> {
-    const newUser = (await this.userModel.create(createUsers)).save();
-    return newUser;
+  async create(payload: GenericMatch) {
+    const newUser = await this.userModel.create(payload);
+    return await newUser.save();
   }
 
   async updateUser(_id: string, updateDetails: UpdateUserDto): Promise<IUser> {
@@ -56,19 +62,28 @@ export class UserService {
   }
 
   async createUser(RegisterDTO: RegistrationDTO) {
+    console.log('creating');
     const { email } = RegisterDTO;
     const user = await this.userModel.findOne({ email });
+    console.log(user);
     if (user) {
-      throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException({
+        message: 'user already exists',
+        status: HttpStatus.BAD_REQUEST,
+      });
+      // throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
 
-    const createdUser = await new this.userModel(RegisterDTO).save();
+    const createdUser = await this.create(RegisterDTO);
+    // console.log(createdUser);
+    // return createdUser;
+
     return this.sanitizeUser(createdUser);
   }
 
   async findByLogin(UserDTO: LoginDto) {
     const { email, password } = UserDTO;
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
       throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
     }
@@ -82,7 +97,7 @@ export class UserService {
     }
   }
   sanitizeUser(user: IUser) {
-    const sanitized = user.toObject();
+    const sanitized = user;
     delete sanitized['password'];
     return sanitized;
   }

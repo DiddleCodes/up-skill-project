@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from '@hapi/joi';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SurveysModule } from './surveys/surveys.module';
-import { UserModule } from './user/user.module';
+import { SurveysModule } from '../surveys/surveys.module';
+import { UserModule } from '../user/user.module';
 
 
 @Module({
