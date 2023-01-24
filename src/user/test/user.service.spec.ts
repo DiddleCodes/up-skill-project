@@ -4,14 +4,12 @@ import { UserService } from '../user.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { UserModel } from './support/user.model';
 import { IUser, User } from '../users.schema';
-import { Model } from 'mongoose';
 import { createUserResp, createUserStub } from './stubs/user.stub';
 import { ConfigService } from '@nestjs/config';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: UserService;
-  let userModel: UserModel;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,64 +17,85 @@ describe('AuthService', () => {
         UserService,
         {
           provide: getModelToken('User'),
-          useValue: UserModel,
+          useClass: UserModel,
         },
         ConfigService,
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
-    userModel = module.get(getModelToken('User'));
-    // userModel = module.get<UserModel>(UserModel);
   });
 
-  describe('create method should return user details', () => {
+  describe('create methods', () => {
     let user: IUser;
-    let saveSpy: jest.SpyInstance;
-    let constructorSpy: jest.SpyInstance;
+    let createSpy: jest.SpyInstance;
     let oneSpy: jest.SpyInstance;
 
     beforeEach(async () => {
-      saveSpy = jest.spyOn(UserModel.prototype, 'save');
-      // oneSpy = jest.spyOn(userModel, 'findOne').mockResolvedValue(null);
-      // .mockResolvedValue(null);
-      constructorSpy = jest.spyOn(UserModel.prototype, 'constructorSpy');
-      user = await service.create(createUserStub());
-    });
-    test('should return user details', async () => {
-      // try {
-      //expect(oneSpy).toHaveBeenCalled();
-      expect(constructorSpy).toHaveBeenCalledWith(createUserStub());
-      expect(user).toEqual(createUserResp());
-      // await expect(service.createUser(createUserStub())).rejects.toEqual(
-      //   new BadRequestException({
-      //     message: 'user already exists',
-      //     status: HttpStatus.BAD_REQUEST,
-      //   }),
-      // );
-      // } catch (error) {
-      //   console.log('random');
-      //   console.log(error);
-      //   // expect(error).toBeInstanceOf(HttpException);
-      // }
+      UserModel.prototype.create = jest.fn().mockImplementationOnce(() => ({
+        save: jest.fn().mockReturnValueOnce(createUserResp()),
+      }));
     });
 
-    // test('should return requested user details', async () => {
-    //   try {
-    //     expect(oneSpy).toHaveBeenCalled();
-    //     // expect(saveSpy).toHaveBeenCalled();
-    //     await expect(service.createUser(createUserStub())).rejects.toEqual(
-    //       new BadRequestException({
-    //         message: 'user already exists',
-    //         status: HttpStatus.BAD_REQUEST,
-    //       }),
-    //     );
-    //   } catch (error) {
-    //     console.log('random');
-    //     console.log(error);
-    //     // expect(error).toBeInstanceOf(HttpException);
-    //   }
-    // });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    describe('create() method', () => {
+      test('should create and save user details', async () => {
+        user = await service.create(createUserStub());
+        createSpy = jest.spyOn(UserModel.prototype, 'create');
+        expect(createSpy).toHaveBeenCalledWith(createUserStub());
+
+        expect(user).toEqual(createUserResp());
+      });
+    });
+    describe('createUser() method ', () => {
+      test('should throw an error when creating an already existing user', async () => {
+        try {
+          oneSpy = jest.spyOn(UserModel.prototype, 'findOne');
+          user = await service.createUser(createUserStub());
+          expect(oneSpy).toHaveBeenCalledWith({
+            email: createUserStub().email,
+          });
+          await expect(user).rejects.toEqual(
+            new BadRequestException({
+              message: 'user already exists',
+              status: HttpStatus.BAD_REQUEST,
+            }),
+          );
+        } catch (error) {
+          expect(error).toBeInstanceOf(HttpException);
+        }
+      });
+
+      test('should create a user details that does not exist', async () => {
+        UserModel.prototype.findOne = jest.fn().mockReturnValueOnce(null);
+        user = await service.createUser(createUserStub());
+        expect(user).toEqual(createUserResp());
+      });
+    });
+  });
+
+  describe('Find methods', () => {
+    let users: IUser[];
+    describe('getAllUsers()', () => {
+      test('should Get all users that exists in the db', async () => {
+        users = await service.getAllUsers();
+        expect(users).toEqual([createUserResp()]);
+      });
+      test('should throw an error if no user exists in the db', async () => {
+        try {
+          UserModel.prototype.find = jest.fn().mockReturnValueOnce([]);
+          users = await service.getAllUsers();
+          await expect(users).rejects.toEqual(
+            new HttpException(' No Users found', HttpStatus.BAD_REQUEST),
+          );
+          expect(users).toEqual([createUserResp()]);
+        } catch (error) {
+          expect(error).toBeInstanceOf(HttpException);
+        }
+      });
+    });
   });
 
   it('should be defined', () => {
